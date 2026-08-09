@@ -26,4 +26,4 @@ If I had more time, I would add more robust history filtering, pagination, and b
 
 ## What you would do with more time
 
-I would add repository abstractions around persistence, stronger tests around the history flow and the list query, and a more polished UI for the history screen.
+I would introduce repository abstractions for persistence, add stronger tests around the history flow and request-list query, and refine the history screen UI. I would also structure the codebase around a clean-architecture style with separate layers for business logic, use cases, controllers, and presentation to improve scalability, maintainability, and reusability.
