@@ -27,7 +27,7 @@ export class RequestsController {
   history(@Query('category') _category?: string) {
     return {
       items: [],
-      message: 'Classification history is not implemented yet.',
+      message: 'Classification history is not implemented yet.', // not been implemented yet, so this function will always return an empty array.
     };
   }
 
@@ -55,6 +55,9 @@ export class RequestsController {
   /**
    * Classify a customer request. Business rules currently live in the controller.
    */
+  ///TODO need to refactor and move the business logic to the service layer.
+  //  The controller should only handle HTTP requests and responses, 
+  // while the service layer should contain the business logic.
   @Post('classify')
   async classify(@Body() body: any) {
     const message = body?.message;

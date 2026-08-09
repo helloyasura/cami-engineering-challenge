@@ -25,10 +25,14 @@ export class RequestsService {
     private readonly notes: Repository<RequestNote>,
   ) {}
 
+  /// method header not been added cannot read what functionalities should be there 
   async list(): Promise<RequestListItem[]> {
+    /// item validation need to be done in the controller, not here. This is a service layer and should not be concerned with validation.
     const rows = await this.requests.find({
       order: { createdAt: 'DESC' },
     });
+    ///N +1 parttern is being used here, which is not efficient. Instead,
+    ///  we should use a single query with a join to fetch the notes along with the requests.
 
     const items: RequestListItem[] = [];
     for (const row of rows) {

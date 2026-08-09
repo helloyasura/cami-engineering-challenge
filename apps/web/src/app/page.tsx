@@ -13,8 +13,10 @@ import {
 const STATUSES: RequestStatus[] = ['open', 'in_progress', 'resolved'];
 
 export default function HomePage() {
-  const queryClient = useQueryClient();
-  const [draft, setDraft] = useState('');
+  const queryClient = useQueryClient(); /// client query is not being invalidated after a mutation,
+  /// which can lead to stale data being displayed.
+  //  We should call queryClient.invalidateQueries
+  //  after a successful mutation to ensure the data is up-to-date.
 
   const requestsQuery = useQuery({
     queryKey: ['requests'],
