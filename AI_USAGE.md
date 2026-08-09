@@ -2,21 +2,21 @@
 
 ## Tools used
 
-List the AI tools you used (Cursor, GitHub Copilot, Claude Code, ChatGPT, etc.).
+- GitHub Copilot
+- VS Code terminal and workspace tools
 
 ## How I used AI
 
-Briefly explain how you used AI during the challenge (exploring the codebase, drafting
-fixes, tests, docs, review, …).
+I used AI to inspect and automate repetitive tasks and use to inspect and improve code quality and speed 
 
 ## What I changed or rejected
 
-Describe anything the AI suggested that you changed, corrected, or rejected.
+I accepted the some of classified repetitive changes that have automate and use it to keep when it correctly do the job or else fix the change and improve it with giving rule to avoid same mistake 
 
 ## Trade-offs
 
-Any AI-related trade-offs under the timebox.
+The history feature is intentionally minimal: it persists classification events and exposes a simple filtered list for the history screen, while leaving deeper sequencing or provider failure handling for future work.
 
 ## Team workflow (optional stretch)
 
-If relevant: how you would set standards for AI-assisted development on a team.
+For a team, I would keep AI-assisted changes scoped to small, reviewable slices, require tests for behavior changes, and document assumptions in the repo so that future contributors can understand the trade-offs.

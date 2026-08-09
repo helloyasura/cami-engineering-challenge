@@ -30,9 +30,26 @@ export class InitialSchema1710000000000 implements MigrationInterface {
       CREATE INDEX IF NOT EXISTS idx_request_notes_request_id
       ON request_notes(request_id);
     `);
+
+    await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS classification_history (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        message text NOT NULL,
+        category varchar(32) NOT NULL,
+        confidence double precision NOT NULL,
+        request_id uuid NULL,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+    `);
+
+    await queryRunner.query(`
+      CREATE INDEX IF NOT EXISTS idx_classification_history_created_at
+      ON classification_history(created_at DESC);
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS classification_history;`);
     await queryRunner.query(`DROP TABLE IF EXISTS request_notes;`);
     await queryRunner.query(`DROP TABLE IF EXISTS customer_requests;`);
   }

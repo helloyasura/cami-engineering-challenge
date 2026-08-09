@@ -69,8 +69,20 @@ export async function classifyMessage(message: string, requestId?: string) {
   return res.json();
 }
 
-///TODO History endpoint is not implemented yet, so this function will always return an empty array.
-export async function fetchHistory(category?: string) {
+export type ClassificationHistoryItem = {
+  id: string;
+  message: string;
+  category: string;
+  confidence: number;
+  requestId: string | null;
+  createdAt: string;
+};
+
+export type ClassificationHistoryResponse = {
+  items: ClassificationHistoryItem[];
+};
+
+export async function fetchHistory(category?: string): Promise<ClassificationHistoryResponse> {
   const qs = category ? `?category=${encodeURIComponent(category)}` : '';
   const res = await fetch(`${API_URL}/requests/history${qs}`);
   if (!res.ok) {

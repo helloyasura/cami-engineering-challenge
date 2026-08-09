@@ -7,38 +7,67 @@ import {
   createRequest,
   fetchRequests,
   RequestStatus,
+  RequestListItem,
   updateRequestStatus,
 } from '@/lib/api';
 
 const STATUSES: RequestStatus[] = ['open', 'in_progress', 'resolved'];
 
 export default function HomePage() {
-  const queryClient = useQueryClient(); /// client query is not being invalidated after a mutation,
-  /// which can lead to stale data being displayed.
-  //  We should call queryClient.invalidateQueries
-  //  after a successful mutation to ensure the data is up-to-date.
+  const queryClient = useQueryClient();
+  const [draft, setDraft] = useState('');
 
-  const requestsQuery = useQuery({
+  const requestsQuery = useQuery<RequestListItem[]>({
     queryKey: ['requests'],
     queryFn: fetchRequests,
   });
 
   const createMutation = useMutation({
     mutationFn: (message: string) => createRequest(message),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['requests'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['requests'] });
       setDraft('');
     },
   });
 
-  const statusMutation = useMutation({
+  const statusMutation = useMutation<void, Error, { id: string; status: RequestStatus }>({
     mutationFn: ({ id, status }: { id: string; status: RequestStatus }) =>
       updateRequestStatus(id, status),
+    onSuccess: async (_data: void, variables: { id: string; status: RequestStatus }) => {
+      await queryClient.invalidateQueries({ queryKey: ['requests'] });
+      queryClient.setQueryData<RequestListItem[]>(['requests'], (current?: RequestListItem[]) =>
+        current?.map((item: RequestListItem) =>
+          item.id === variables.id ? { ...item, status: variables.status } : item,
+        ),
+      );
+    },
   });
 
-  const classifyMutation = useMutation({
+  const classifyMutation = useMutation<
+    { category: string; confidence: number; requestId: string | null },
+    Error,
+    { id: string; message: string }
+  >({
     mutationFn: ({ id, message }: { id: string; message: string }) =>
       classifyMessage(message, id),
+    onSuccess: async (
+      data: { category: string; confidence: number; requestId: string | null },
+      variables: { id: string; message: string },
+    ) => {
+      await queryClient.invalidateQueries({ queryKey: ['requests'] });
+      queryClient.setQueryData<RequestListItem[]>(['requests'], (current?: RequestListItem[]) =>
+        current?.map((item: RequestListItem) =>
+          item.id === variables.id
+            ? {
+                ...item,
+                category: data.category,
+                confidence: data.confidence,
+                status: item.status === 'open' ? 'in_progress' : item.status,
+              }
+            : item,
+        ),
+      );
+    },
   });
 
   if (requestsQuery.isLoading) {
@@ -54,7 +83,7 @@ export default function HomePage() {
     );
   }
 
-  const requests = requestsQuery.data ?? [];
+  const requests = (requestsQuery.data ?? []) as RequestListItem[];
 
   return (
     <div className="space-y-6">

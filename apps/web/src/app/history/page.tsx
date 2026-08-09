@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { fetchHistory } from '@/lib/api';
 
 export default function HistoryPage() {
@@ -10,6 +10,8 @@ export default function HistoryPage() {
     queryKey: ['history', category],
     queryFn: () => fetchHistory(category || undefined),
   });
+
+  const items = useMemo(() => historyQuery.data?.items ?? [], [historyQuery.data]);
 
   return (
     <div className="space-y-6">
@@ -32,15 +34,36 @@ export default function HistoryPage() {
         />
       </label>
 
-      <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
+      <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
         {historyQuery.isLoading ? (
           <p>Loading…</p>
         ) : historyQuery.isError ? (
           <p className="text-red-700">Failed to load history.</p>
+        ) : items.length === 0 ? (
+          <p>No classification history yet.</p>
         ) : (
-          <pre className="overflow-x-auto whitespace-pre-wrap">
-            {JSON.stringify(historyQuery.data, null, 2)}
-          </pre>
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-sm">
+              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Message</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Confidence</th>
+                  <th className="px-4 py-3">Created</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="max-w-xl px-4 py-3 text-slate-900">{item.message}</td>
+                    <td className="px-4 py-3">{item.category}</td>
+                    <td className="px-4 py-3">{item.confidence.toFixed(2)}</td>
+                    <td className="px-4 py-3">{new Date(item.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
